@@ -31,13 +31,17 @@
 
 <script>
 (function(){
-  // --- CONFIG (URL oculta con Base64 en partes correctas) ---
-  const encodedParts = [
-    "9Yz9/+diW",
-    "YY9H1egkwBXmozoTNL",
-    "YUHMBbtb9",
-    "ZxGB+qw="
-  ];
+const encodedParts = [
+  "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
+  "Nyb3Mvcy9BS2Z5Y2J3TkU1LUVjTnJXcFNlQ01j",
+  "a2s5djRCbnVKTUlJdWk4SHB6QkdhNEdTb0hMZ1",
+  "9pUTZIeHBIaF9yYnVvcHQ2dFJYMENDZy9leGVj"
+];
+
+// Decodificar en navegador
+const decodedUrl = atob(encodedParts.join(""));
+console.log("URL decodificada:", decodedUrl);
+
 
   // Reconstruye la URL en tiempo de ejecución
   let FALLBACK_IFRAME_SRC = "";
@@ -139,3 +143,4 @@
 
 
 </html>
+
