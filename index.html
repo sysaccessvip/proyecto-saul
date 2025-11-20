@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Orlando</title>
-      <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png?v=1">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png?v=1">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png?v=1">
-  <link rel="shortcut icon" href="favicon_io/favicon.ico?v=1" type="image/x-icon">
-  <link rel="manifest" href="favicon_io/site.webmanifest?v=1">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon_io/apple-touch-icon.png?v=1">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon_io/favicon-32x32.png?v=1">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon_io/favicon-16x16.png?v=1">
+    <link rel="shortcut icon" href="favicon_io/favicon.ico?v=1" type="image/x-icon">
+    <link rel="manifest" href="favicon_io/site.webmanifest?v=1">
     <style>
         html, body {
             margin: 0;
@@ -31,116 +31,125 @@
 
 <script>
 (function(){
-const encodedParts = [
-  "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
-  "Nyb3Mvcy9BS2Z5Y2J3TkU1LUVjTnJXcFNlQ01j",
-  "a2s5djRCbnVKTUlJdWk4SHB6QkdhNEdTb0hMZ1",
-  "9pUTZIeHBIaF9yYnVvcHQ2dFJYMENDZy9leGVj"
-];
+    // 1. Tu URL Encriptada
+    const encodedParts = [
+      "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
+      "Nyb3Mvcy9BS2Z5Y2J3TkU1LUVjTnJXcFNlQ01j",
+      "a2s5djRCbnVKTUlJdWk4SHB6QkdhNEdTb0hMZ1",
+      "9pUTZIeHBIaF9yYnVvcHQ2dFJYMENDZy9leGVj"
+    ];
 
-// Decodificar en navegador
-const decodedUrl = atob(encodedParts.join(""));
-console.log("URL decodificada:", decodedUrl);
-
-
-  // Reconstruye la URL en tiempo de ejecución
-  let FALLBACK_IFRAME_SRC = "";
-  try {
-    FALLBACK_IFRAME_SRC = atob(encodedParts.join(""));
-  } catch (e) {
-    // Si algo falla en la decodificación, evitamos exponer la cadena
-    FALLBACK_IFRAME_SRC = "";
-  }
-
-  // Si por alguna razón la reconstrucción falla, puedes establecer una URL segura opcional:
-  // if (!FALLBACK_IFRAME_SRC) FALLBACK_IFRAME_SRC = "about:blank";
-
-  // --- CSS ---
-  const css = `
-  .embed-fullscreen{position:relative;width:100%;height:100vh;overflow:hidden;background:#000}
-  .embed-fullscreen iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#fff}
-  `;
-  const style = document.createElement("style");
-  style.textContent = css;
-  document.head.appendChild(style);
-
-  // --- Crear contenedor ---
-  const container = document.createElement("div");
-  container.className = "embed-fullscreen";
-
-  // --- Iframe ---
-  const iframe = document.createElement("iframe");
-  iframe.id = "auth-iframe";
-  iframe.title = "Contenido integrado";
-  iframe.loading = "eager";
-  iframe.setAttribute("allow","clipboard-read; clipboard-write");
-  iframe.setAttribute("referrerpolicy","no-referrer-when-downgrade");
-  iframe.scrolling = "yes";
-
-  // Asignar src sólo si la URL está correctamente reconstruida
-  if (FALLBACK_IFRAME_SRC) {
-    iframe.src = FALLBACK_IFRAME_SRC;
-  } else {
-    // Si no hay URL, cargamos un fallback seguro (opcional)
-    iframe.src = "about:blank";
-    // Puedes cambiar "about:blank" por otra página de aviso si lo prefieres.
-  }
-
-  container.appendChild(iframe);
-
-  // --- Insertar en body ---
-  // Asegurarse de no romper el flujo si body aún no existe
-  if (document.body) {
-    document.body.appendChild(container);
-  } else {
-    window.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(container); });
-  }
-
-  // --- Reemplazar URL visible en la barra sin afectar navegación ---
-  if (location.pathname.indexOf("/p/sistema-orlando.html") !== -1) {
-    try { history.replaceState(null, "", "/p/orlando-cordova"); } catch(e){}
-  }
-
-  // --- Neutralizar logs que contengan tu dominio para evitar mostrar la URL ---
-  (function protectConsole(){
-    const origLog = console.log.bind(console);
-    const origWarn = console.warn.bind(console);
-    const origError = console.error.bind(console);
-
-    function blockIfContains(args){
-      try {
-        return args.some(a => {
-          if (typeof a === 'string') {
-            return a.includes("script.google.com") || a.includes("googleusercontent");
-          }
-          // también revisar objetos convertidos a string
-          return String(a).includes("script.google.com") || String(a).includes("googleusercontent");
-        });
-      } catch(e){ return false; }
+    // 2. Reconstrucción de la URL base
+    let FALLBACK_IFRAME_SRC = "";
+    try {
+        FALLBACK_IFRAME_SRC = atob(encodedParts.join(""));
+    } catch (e) {
+        FALLBACK_IFRAME_SRC = "";
     }
 
-    console.log = function(...args){
-      if (blockIfContains(args)) return;
-      origLog(...args);
-    };
-    console.warn = function(...args){
-      if (blockIfContains(args)) return;
-      origWarn(...args);
-    };
-    console.error = function(...args){
-      if (blockIfContains(args)) return;
-      origError(...args);
-    };
-  })();
+    // ---------------------------------------------------------
+    // LÓGICA NUEVA: Capturar la ruta actual para enviarla al GAS
+    // ---------------------------------------------------------
+    // Obtenemos la ruta actual (ej: /login o /producto/123)
+    // Usamos 'hash' (#/login) si estás en GitHub Pages para evitar errores 404, 
+    // o pathname (/login) si tienes un servidor configurado.
+    // Aquí asumo que quieres usar PATH normal.
+    
+    let currentRoute = window.location.pathname;
+    if (currentRoute === "/" || currentRoute === "/index.html") {
+        currentRoute = "";
+    }
+    
+    // Agregamos la ruta como parámetro a la URL de Google Apps Script
+    // Google Apps Script recibirá esto en el evento doGet(e).parameter.page
+    if (FALLBACK_IFRAME_SRC) {
+        const separator = FALLBACK_IFRAME_SRC.includes('?') ? '&' : '?';
+        // Enviamos 'page' con la ruta
+        FALLBACK_IFRAME_SRC += separator + "page=" + encodeURIComponent(currentRoute);
+    }
+    // ---------------------------------------------------------
+
+    // --- CSS ---
+    const css = `
+    .embed-fullscreen{position:relative;width:100%;height:100vh;overflow:hidden;background:#000}
+    .embed-fullscreen iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#fff}
+    `;
+    const style = document.createElement("style");
+    style.textContent = css;
+    document.head.appendChild(style);
+
+    // --- Crear contenedor ---
+    const container = document.createElement("div");
+    container.className = "embed-fullscreen";
+
+    // --- Iframe ---
+    const iframe = document.createElement("iframe");
+    iframe.id = "auth-iframe";
+    iframe.title = "Sistema Integrado";
+    iframe.loading = "eager";
+    iframe.setAttribute("allow","clipboard-read; clipboard-write");
+    iframe.setAttribute("referrerpolicy","no-referrer-when-downgrade");
+    iframe.scrolling = "yes";
+
+    if (FALLBACK_IFRAME_SRC) {
+        iframe.src = FALLBACK_IFRAME_SRC;
+    } else {
+        iframe.src = "about:blank";
+    }
+
+    container.appendChild(iframe);
+
+    if (document.body) {
+        document.body.appendChild(container);
+    } else {
+        window.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(container); });
+    }
+
+    // ---------------------------------------------------------
+    // LÓGICA NUEVA: Escuchar mensajes desde el Iframe para cambiar URL
+    // ---------------------------------------------------------
+    window.addEventListener('message', function(e) {
+        // Por seguridad, verificamos que venga de Google
+        if (e.origin.includes("script.google.com")) {
+            const data = e.data;
+            
+            // Si el iframe dice "cambia la URL"
+            if (data.action === 'updateUrl' && data.path) {
+                // Usamos replaceState o pushState para cambiar la URL sin recargar
+                // Ejemplo: cambia tudominio.com a tudominio.com/login
+                try {
+                    window.history.pushState({path: data.path}, '', data.path);
+                } catch(err) {
+                    console.error("Error actualizando URL", err);
+                }
+            }
+        }
+    });
+
+    // --- Neutralizar logs (Tu código original) ---
+    (function protectConsole(){
+        const origLog = console.log.bind(console);
+        const origWarn = console.warn.bind(console);
+        const origError = console.error.bind(console);
+
+        function blockIfContains(args){
+            try {
+                return args.some(a => {
+                    if (typeof a === 'string') {
+                        return a.includes("script.google.com") || a.includes("googleusercontent");
+                    }
+                    return String(a).includes("script.google.com") || String(a).includes("googleusercontent");
+                });
+            } catch(e){ return false; }
+        }
+
+        console.log = function(...args){ if (blockIfContains(args)) return; origLog(...args); };
+        console.warn = function(...args){ if (blockIfContains(args)) return; origWarn(...args); };
+        console.error = function(...args){ if (blockIfContains(args)) return; origError(...args); };
+    })();
 
 })();
 </script>
 
-
-
 </body>
-
-
-
 </html>
-
