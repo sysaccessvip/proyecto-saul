@@ -31,19 +31,14 @@
 
 <script>
 (function(){
-// --- CONFIG (URL oculta con Base64 en partes correctas) ---
-const encodedParts = [
-  "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
-  "Nyb3Mvcy9BS2Z5Y2J5ZFdRRUM0WElVVndEbHhN",
-  "eHhoT21qNFllMnYtUzlNMU9rRENMU3pacWdKYn",
-  "FFa3FSLUw5b0VYTnBudm5UWXdjeHV3US9leGVj"
-];
+    // 1. Tu URL Encriptada
+    const encodedParts = [
+      "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
+      "Nyb3Mvcy9BS2Z5Y2J3TkU1LUVjTnJXcFNlQ01j",
+      "a2s5djRCbnVKTUlJdWk4SHB6QkdhNEdTb0hMZ1",
+      "9pUTZIeHBIaF9yYnVvcHQ2dFJYMENDZy9leGVj"
+    ];
 
-// Decodificar en navegador
-const decodedUrl = atob(encodedParts.join(""));
-console.log("URL decodificada:", decodedUrl);
-
-    // 2. Reconstrucción de la URL base
     let FALLBACK_IFRAME_SRC = "";
     try {
         FALLBACK_IFRAME_SRC = atob(encodedParts.join(""));
@@ -52,26 +47,25 @@ console.log("URL decodificada:", decodedUrl);
     }
 
     // ---------------------------------------------------------
-    // LÓGICA NUEVA: Capturar la ruta actual para enviarla al GAS
+    // CORRECCIÓN: Capturar QUERY PARAMETERS (?product_id=...)
     // ---------------------------------------------------------
-    // Obtenemos la ruta actual (ej: /login o /producto/123)
-    // Usamos 'hash' (#/login) si estás en GitHub Pages para evitar errores 404, 
-    // o pathname (/login) si tienes un servidor configurado.
-    // Aquí asumo que quieres usar PATH normal.
+    // Necesitamos pasar todo lo que viene después del dominio (pathname + search)
+    // Ejemplo: si entras a tusitio.com/?product_id=5
+    let fullPath = window.location.pathname + window.location.search;
     
-    let currentRoute = window.location.pathname;
-    if (currentRoute === "/" || currentRoute === "/index.html") {
-        currentRoute = "";
+    if (fullPath === "/" || fullPath === "/index.html") {
+        fullPath = ""; // Opcional, depende de cómo manejes el home
+    } else if (window.location.search) {
+        // Si hay parámetros, asegurémonos de pasarlos
+        fullPath = window.location.search; 
     }
     
-    // Agregamos la ruta como parámetro a la URL de Google Apps Script
-    // Google Apps Script recibirá esto en el evento doGet(e).parameter.page
+    // Agregamos el parámetro 'page' a la URL de Google Apps Script
     if (FALLBACK_IFRAME_SRC) {
         const separator = FALLBACK_IFRAME_SRC.includes('?') ? '&' : '?';
-        // Enviamos 'page' con la ruta
-        FALLBACK_IFRAME_SRC += separator + "page=" + encodeURIComponent(currentRoute);
+        // Pasamos el parámetro como 'startPage' para leerlo dentro de GAS
+        FALLBACK_IFRAME_SRC += separator + "startPage=" + encodeURIComponent(fullPath);
     }
-    // ---------------------------------------------------------
 
     // --- CSS ---
     const css = `
@@ -110,27 +104,27 @@ console.log("URL decodificada:", decodedUrl);
     }
 
     // ---------------------------------------------------------
-    // LÓGICA NUEVA: Escuchar mensajes desde el Iframe para cambiar URL
+    // LISTENER DE MENSAJES (Corregido para actualizar URL)
     // ---------------------------------------------------------
     window.addEventListener('message', function(e) {
-        // Por seguridad, verificamos que venga de Google
-        if (e.origin.includes("script.google.com")) {
+        // Validar origen de Google
+        if (e.origin.includes("script.google.com") || e.origin.includes("googleusercontent.com")) {
             const data = e.data;
             
-            // Si el iframe dice "cambia la URL"
+            // Acción para actualizar la URL del navegador
             if (data.action === 'updateUrl' && data.path) {
-                // Usamos replaceState o pushState para cambiar la URL sin recargar
-                // Ejemplo: cambia tudominio.com a tudominio.com/login
                 try {
-                    window.history.pushState({path: data.path}, '', data.path);
+                    // Si path es solo "?product_id=1", pushState lo maneja correctamente
+                    window.history.pushState({path: data.path}, data.title || '', data.path);
+                    if(data.title) document.title = data.title;
                 } catch(err) {
-                    console.error("Error actualizando URL", err);
+                    console.error("Error actualizando URL:", err);
                 }
             }
         }
     });
 
-    // --- Neutralizar logs (Tu código original) ---
+    // --- Neutralizar logs ---
     (function protectConsole(){
         const origLog = console.log.bind(console);
         const origWarn = console.warn.bind(console);
@@ -154,6 +148,8 @@ console.log("URL decodificada:", decodedUrl);
 
 })();
 </script>
+    
 
 </body>
 </html>
+
