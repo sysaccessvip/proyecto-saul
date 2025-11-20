@@ -31,13 +31,17 @@
 
 <script>
 (function(){
-    // 1. Tu URL Encriptada
-    const encodedParts = [
-      "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
-      "Nyb3Mvcy9BS2Z5Y2J3TkU1LUVjTnJXcFNlQ01j",
-      "a2s5djRCbnVKTUlJdWk4SHB6QkdhNEdTb0hMZ1",
-      "9pUTZIeHBIaF9yYnVvcHQ2dFJYMENDZy9leGVj"
-    ];
+// --- CONFIG (URL oculta con Base64 en partes correctas) ---
+const encodedParts = [
+  "aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYW",
+  "Nyb3Mvcy9BS2Z5Y2J5ZFdRRUM0WElVVndEbHhN",
+  "eHhoT21qNFllMnYtUzlNMU9rRENMU3pacWdKYn",
+  "FFa3FSLUw5b0VYTnBudm5UWXdjeHV3US9leGVj"
+];
+
+// Decodificar en navegador
+const decodedUrl = atob(encodedParts.join(""));
+console.log("URL decodificada:", decodedUrl);
 
     // 2. Reconstrucción de la URL base
     let FALLBACK_IFRAME_SRC = "";
